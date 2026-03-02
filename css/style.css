@@ -1,1 +1,70 @@
+:root {
+    --bg-color: #f0f2f5;
+    --box-bg: #ffffff;
+    --text-main: #1a1a1a;
+    --accent: #2d3436;
+    --radius: 24px;
+}
 
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-main);
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.bento-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 200px);
+    gap: 1.5rem;
+    max-width: 1000px;
+    width: 100%;
+}
+
+.box {
+    background: var(--box-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Bento Sizing Logic */
+.about {
+    grid-column: span 2;
+    grid-row: span 2;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.now {
+    grid-column: span 2;
+}
+
+.professional, .personal {
+    grid-column: span 1;
+}
+
+.contact {
+    grid-column: span 2;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .bento-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    .about, .now, .professional, .personal, .contact {
+        grid-column: span 1;
+    }
+}
