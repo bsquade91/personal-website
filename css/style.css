@@ -1,13 +1,13 @@
 :root {
-    --bg-color: #f0f2f5;
+    --bg-color: #fcfbf9; /* A warm, cozy off-white */
     --box-bg: #ffffff;
-    --text-main: #1a1a1a;
-    --accent: #2d3436;
-    --radius: 24px;
+    --text-main: #4a4a4a; /* Softer than stark black */
+    --accent-hero: #3a3f3a; /* Earthy charcoal for the main box */
+    --radius: 32px; /* Extra rounded, "cuter" corners */
 }
 
 body { 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    font-family: ui-rounded, 'Hiragino Maru Gothic ProN', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* Prioritizes rounded fonts if available */
     background-color: var(--bg-color); 
     color: var(--text-main);
     margin: 0; 
@@ -21,9 +21,9 @@ body {
 .bento-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 200px);
-    gap: 1.5rem;
-    max-width: 1000px;
+    grid-template-rows: repeat(2, 160px); /* Shorter boxes for a compact look */
+    gap: 1rem; /* Tighter spacing between boxes */
+    max-width: 850px; /* Slimmer overall container */
     width: 100%;
 }
 
@@ -31,38 +31,73 @@ body {
     background: var(--box-bg);
     padding: 1.5rem;
     border-radius: var(--radius);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04); /* Softer, floaty shadow */
+    border: 1px solid rgba(0,0,0,0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Bento Sizing Logic */
+/* Add a subtle "lift" effect when you hover over the boxes */
+.box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+/* Typography Scaling */
+h1, h2, h3 { margin-top: 0; margin-bottom: 0.5rem; }
+h1 { font-size: 1.4rem; } /* Smaller hero name */
+h2 { font-size: 1.1rem; }
+p, li, a { font-size: 0.85rem; line-height: 1.4; } /* Smaller, neater body text */
+ul { padding-left: 1.2rem; margin-bottom: 0; }
+
+/* Bento Box Specifics & Cute Colors */
 .about {
     grid-column: span 2;
     grid-row: span 2;
-    background: var(--accent);
-    color: white;
+    background: var(--accent-hero);
+    color: #f9f9f9;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
+.about .location { opacity: 0.8; margin-top: auto; }
+
 .now {
     grid-column: span 2;
+    background: #fffdf5; /* Very pale, warm cream */
 }
 
-.professional, .personal {
+.professional {
     grid-column: span 1;
+    background: #f2f7f4; /* Soft sage green for sustainability */
+}
+
+.personal {
+    grid-column: span 1;
+    background: #f5f3fa; /* Soft lavender for creative work */
 }
 
 .contact {
     grid-column: span 2;
 }
 
+.socials {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.socials a, .link {
+    color: var(--text-main);
+    font-weight: bold;
+    text-decoration: none;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .bento-container {
         grid-template-columns: 1fr;
-        grid-template-rows: auto;
+        grid-template-rows: auto; /* Let boxes size to their content on mobile */
     }
     .about, .now, .professional, .personal, .contact {
         grid-column: span 1;
