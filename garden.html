@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollinator Garden | Creative Lab</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 85vh;
+            padding: 20px;
+        }
+        canvas {
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+            border: 2px solid #f2f7f4;
+            cursor: none; /* Hide default cursor so the bee IS the cursor */
+            touch-action: none; 
+        }
+        .instructions {
+            margin-top: 1rem;
+            color: #4a4a4a;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <main class="game-wrapper">
+        <a href="index.html" class="link" style="align-self: flex-start; margin-bottom: 1rem; max-width: 600px; width: 100%;">← Back to Portfolio</a>
+        <canvas id="gardenCanvas" width="600" height="400"></canvas>
+        <p class="instructions">Guide the bee to wake up the garden.</p>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('gardenCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- Architecture: The MVP Objects ---
+        
+        const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+        
+        class Bee {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.size = 8;
+                this.easing = 0.05; // Lower is slower/floatier
+            }
+
+            update() {
+                // Linear interpolation (Lerp) for smooth floating movement
+                this.x += (mouse.x - this.x) * this.easing;
+                this.y += (mouse.y - this.y) * this.easing;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Tilt the bee slightly based on movement direction
+                const dx = mouse.x - this.x;
+                ctx.rotate(dx * 0.005);
+
+                // Body
+                ctx.fillStyle = '#feca57'; // Warm yellow
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size + 4, this.size, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Stripes
+                ctx.fillStyle = '#3a3f3a';
+                ctx.fillRect(-2, -this.size, 4, this.size * 2);
+
+                // Tiny wings (flap based on time)
+                const flap = Math.sin(Date.now() * 0.05) * 3;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.ellipse(-2, -this.size, 4, 6 + flap, Math.PI / 4, 0, Math.PI * 2);
+                ctx.ellipse(2, -this.size, 4, 6 + flap, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        class Flower {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.state = 'bud'; // 'bud' or 'bloom'
+                this.bloomRadius = 0;
+                this.maxRadius = 12 + Math.random() * 6;
+                // Pastel palette
+                const colors = ['#ff9ff3', '#feca57', '#ffb8b8', '#D980FA'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            draw() {
+                if (this.state === 'bud') {
+                    // Draw tiny closed green bud
+                    ctx.fillStyle = '#badc58';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.state === 'bloom') {
+                    // Animate the bloom opening
+                    if (this.bloomRadius < this.maxRadius) {
+                        this.bloomRadius += 0.5;
+                    }
+
+                    // Draw Petals
+                    ctx.fillStyle = this.color;
+                    for (let i = 0; i < 5; i++) {
+                        const angle = (i * Math.PI * 2) / 5;
+                        const px = this.x + Math.cos(angle) * this.bloomRadius;
+                        const py = this.y + Math.sin(angle) * this.bloomRadius;
+                        ctx.beginPath();
+                        ctx.arc(px, py, this.bloomRadius * 0.8, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // Center
+                    ctx.fillStyle = '#fcfbf9';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.bloomRadius * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        // --- Initialization & Game Loop ---
+
+        const bee = new Bee();
+        const garden = [];
+
+        // Plant 25 random buds
+        for (let i = 0; i < 25; i++) {
+            const x = 30 + Math.random() * (canvas.width - 60);
+            const y = 30 + Math.random() * (canvas.height - 60);
+            garden.push(new Flower(x, y));
+        }
+
+        // Event Listeners for Input
+        function updateMouse(e) {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = (e.clientX || e.touches[0].clientX) - rect.left;
+            mouse.y = (e.clientY || e.touches[0].clientY) - rect.top;
+        }
+        canvas.addEventListener('mousemove', updateMouse);
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateMouse(e); });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Garden & Check Collisions
+            garden.forEach(flower => {
+                // If bee is close to a bud, make it bloom
+                if (flower.state === 'bud') {
+                    const dist = Math.hypot(bee.x - flower.x, bee.y - flower.y);
+                    if (dist < 30) {
+                        flower.state = 'bloom';
+                    }
+                }
+                flower.draw();
+            });
+
+            bee.update();
+            bee.draw();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
