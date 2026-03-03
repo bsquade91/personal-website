@@ -103,3 +103,49 @@ ul { padding-left: 1.2rem; margin-bottom: 0; }
         grid-column: span 1;
     }
 }
+
+/* --- Projects Page Bento Layout --- */
+
+.nav-box {
+    grid-column: span 4; /* Spans the whole top row */
+    background: var(--bg-color); /* Blends into the background */
+    box-shadow: none;
+    border: none;
+    padding-bottom: 0;
+}
+
+.nav-box h1 {
+    font-size: 1.8rem;
+    margin-top: 0.5rem;
+    color: var(--accent-hero);
+}
+
+.tpm-work {
+    grid-column: span 2;
+    grid-row: span 2;
+    background: #ffffff;
+    border-top: 4px solid var(--accent-mastercard); /* Subtle nod to your TPM role */
+}
+
+.consulting {
+    grid-column: span 2;
+    background: #f2f7f4; /* Matches the sage green from the home page */
+}
+
+.analytics {
+    grid-column: span 2;
+    background: #fdfcf9; /* Very warm white */
+}
+
+/* Tag styling for the project boxes */
+.tag {
+    display: inline-block;
+    margin-top: auto;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    padding: 4px 8px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 12px;
+    font-weight: bold;
+}
