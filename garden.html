@@ -54,6 +54,7 @@
     
     // 0: Spring, 1: Summer, 2: Fall, 3: Night, 4: Thank You, 5: Winter
     let cycle = 0; 
+    let thankYouAlpha = 0; // Controls the fade-in of the canvas text
     
     const grassBlades = [];
     for (let i = 0; i < 80; i++) {
@@ -109,8 +110,17 @@
         }
     };
 
-    let currentPalette = { ...palettes.spring };
-    let targetPalette = { ...palettes.spring };
+    // Deep copy helper so lerpColor doesn't permanently mutate the original arrays
+    function clonePalette(palette) {
+        const clone = {};
+        for (const key in palette) {
+            clone[key] = [...palette[key]];
+        }
+        return clone;
+    }
+
+    let currentPalette = clonePalette(palettes.spring);
+    let targetPalette = clonePalette(palettes.spring);
 
     function lerpColor(current, target, speed) {
         current[0] += (target[0] - current[0]) * speed;
@@ -153,6 +163,21 @@
             ctx.quadraticCurveTo(blade.x + sway / 2, blade.y - blade.height / 2, blade.x + sway, blade.y - blade.height);
             ctx.stroke();
         });
+
+        // Draw the Thank You message directly onto the canvas horizon
+        if (cycle === 4) {
+            if (thankYouAlpha < 1) thankYouAlpha += 0.02;
+            ctx.save();
+            ctx.fillStyle = `rgba(252, 251, 249, ${thankYouAlpha})`;
+            ctx.font = "bold 26px system-ui, sans-serif";
+            ctx.textAlign = "center";
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 8;
+            ctx.fillText("Thank you for playing!", canvas.width / 2, horizonY - 25);
+            ctx.restore();
+        } else {
+            thankYouAlpha = 0;
+        }
     }
 
     class Pollinator {
@@ -204,7 +229,6 @@
         }
     }
 
-    // --- Snow Particles for Winter ---
     class Snowflake {
         constructor() {
             this.x = Math.random() * canvas.width;
@@ -250,13 +274,10 @@
                 ctx.fillStyle = cycle < 3 ? 'rgba(186, 220, 88, 0.85)' : 'rgba(95, 110, 70, 0.85)';
                 ctx.beginPath(); ctx.arc(this.x, this.y, 4.5, 0, TWO_PI); ctx.fill();
             } else if (this.state === 'bloom') {
-                // Increased max size to 1.7 for bigger flowers
                 if (this.bloomScale < 1.7) this.bloomScale += 0.03; 
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.scale(this.bloomScale, this.bloomScale);
-                
-                // Softens the colors to align better with the soft landscape background
                 ctx.globalAlpha = 0.85; 
 
                 if (this.type === 'bluebell') {
@@ -363,21 +384,20 @@
     function advanceTimeOfDay() {
         cycle++;
         if (cycle === 1) {
-            targetPalette = { ...palettes.summer };
+            targetPalette = clonePalette(palettes.summer);
             instructions.innerText = "The Summer sun brings out new blooms.";
         } else if (cycle === 2) {
-            targetPalette = { ...palettes.fall };
+            targetPalette = clonePalette(palettes.fall);
             instructions.innerText = "Autumn approaches, turning the prairie gold.";
         } else if (cycle === 3) {
-            targetPalette = { ...palettes.night };
+            targetPalette = clonePalette(palettes.night);
             instructions.style.color = '#fcfbf9'; 
             instructions.innerText = "A Luna Moth emerges at night.";
         } else if (cycle === 4) {
-            // "Thank you" phase. Still dark, flowers still visible.
-            instructions.innerText = "Thank you for visiting my corner of the internet.";
+            // Keep night palette, empty instructions text because "Thank you" is on the canvas now.
+            instructions.innerText = " ";
         } else if (cycle === 5) {
-            // Winter phase. 
-            targetPalette = { ...palettes.winter };
+            targetPalette = clonePalette(palettes.winter);
             instructions.style.color = '#4a4a4a'; 
             instructions.innerText = "The garden rests for winter...";
         }
@@ -395,7 +415,6 @@
             snow.forEach(s => { s.update(); s.draw(); });
         }
 
-        // Only draw flowers in seasons 0, 1, 2, 3, and 4
         if (cycle < 5) {
             garden.forEach(flower => {
                 if (flower.state === 'bud' && cycle <= 3) {
@@ -408,9 +427,7 @@
             });
         }
 
-        // Scene Transition Timers
         if (!resetTimer) {
-            // Spring -> Summer -> Fall -> Night
             if (cycle <= 3 && bloomedCount === garden.length) {
                 resetTimer = setTimeout(() => {
                     advanceTimeOfDay();
@@ -418,27 +435,27 @@
                     resetTimer = null;
                 }, 4000); 
             } 
-            // Night -> Thank You Transition
             else if (cycle === 4) {
                 resetTimer = setTimeout(() => {
-                    advanceTimeOfDay(); // Move to Winter
+                    advanceTimeOfDay(); 
                     resetTimer = null;
-                }, 4000); // Show Thank You for 4 seconds
+                }, 4000); 
             } 
-            // Winter -> Reset to Spring
             else if (cycle === 5) {
                 resetTimer = setTimeout(() => {
                     cycle = 0;
-                    targetPalette = { ...palettes.spring };
+                    // Snap both palettes exactly to spring to prevent any winter colors bleeding over
+                    currentPalette = clonePalette(palettes.spring);
+                    targetPalette = clonePalette(palettes.spring);
+                    
                     instructions.style.color = '#4a4a4a';
                     instructions.innerText = "Guide the bee to wake up the garden.";
                     garden.forEach(flower => flower.reset());
                     resetTimer = null;
-                }, 6000); // Stay in Winter for 6 seconds
+                }, 6000); 
             }
         }
 
-        // Only draw the pollinator if it's not winter
         if (cycle < 5) {
             pollinator.update();
             pollinator.draw();
