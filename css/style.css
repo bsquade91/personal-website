@@ -149,3 +149,87 @@ ul { padding-left: 1.2rem; margin-bottom: 0; }
     border-radius: 12px;
     font-weight: bold;
 }
+
+/* --- PACE Feasibility Map Styling --- */
+.map-box {
+    grid-column: 1 / -1; /* Forces this box to span the entire width of the bento grid */
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.metrics-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.metric {
+    background-color: #fdfcf9;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #3a3f3a;
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.iframe-container {
+    width: 100%;
+    height: 550px; /* Gives the map plenty of room to breathe */
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.1);
+    background-color: #eaeaea; /* Loading placeholder color */
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.project-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    background-color: #3a3f3a;
+    color: #fcfbf9;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.button:hover {
+    background-color: #2ecc71; /* Your signature sage green */
+    color: white;
+    transform: translateY(-2px);
+}
+
+.button.secondary {
+    background-color: transparent;
+    color: #3a3f3a;
+    border: 2px solid #3a3f3a;
+}
+
+.button.secondary:hover {
+    background-color: #3a3f3a;
+    color: #fcfbf9;
+}
+
+/* Mobile responsiveness for the actions */
+@media (max-width: 600px) {
+    .project-actions {
+        flex-direction: column;
+    }
+    .iframe-container {
+        height: 400px;
+    }
+}
