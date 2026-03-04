@@ -6,31 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pollinator Garden | Creative Lab</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .game-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 85vh;
-            padding: 20px;
-        }
-        canvas {
-            background: #ffffff;
-            border-radius: 32px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.04);
-            border: 2px solid #f2f7f4;
-            cursor: none; /* Hide default cursor so the bee IS the cursor */
-            touch-action: none; 
-        }
-        .instructions {
-            margin-top: 1rem;
-            color: #4a4a4a;
-            font-size: 0.9rem;
-            font-weight: bold;
-            text-align: center;
-        }
-    </style>
+<style>
+    .game-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 85vh;
+        padding: 20px;
+    }
+    canvas {
+        background-color: #fcfbf9; /* Default Morning */
+        transition: background-color 4s ease-in-out; /* Smooth time-of-day transitions */
+        border-radius: 32px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+        border: 2px solid rgba(0,0,0,0.05);
+        cursor: none; 
+        touch-action: none; 
+    }
+    .instructions {
+        margin-top: 1rem;
+        color: #4a4a4a;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-align: center;
+        transition: color 4s ease;
+    }
+</style>
 </head>
 <body>
     <main class="game-wrapper">
@@ -42,16 +44,17 @@
     <script>
     const canvas = document.getElementById('gardenCanvas');
     const ctx = canvas.getContext('2d');
+    const instructions = document.querySelector('.instructions');
 
     const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    let cycle = 0; // Tracks the time of day
     
-    // --- The Bee ---
-    class Bee {
+    // --- The Pollinator (Bee or Luna Moth) ---
+    class Pollinator {
         constructor() {
             this.x = canvas.width / 2;
             this.y = canvas.height / 2;
-            this.size = 8;
-            this.easing = 0.05; 
+            this.easing = 0.04; 
         }
 
         update() {
@@ -65,62 +68,91 @@
             const dx = mouse.x - this.x;
             ctx.rotate(dx * 0.005);
 
-            // Body
-            ctx.fillStyle = '#feca57'; 
-            ctx.beginPath();
-            ctx.ellipse(0, 0, this.size + 4, this.size, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Stripes
-            ctx.fillStyle = '#3a3f3a';
-            ctx.fillRect(-2, -this.size, 4, this.size * 2);
-
-            // Wings
-            const flap = Math.sin(Date.now() * 0.05) * 3;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.beginPath();
-            ctx.ellipse(-2, -this.size, 4, 6 + flap, Math.PI / 4, 0, Math.PI * 2);
-            ctx.ellipse(2, -this.size, 4, 6 + flap, -Math.PI / 4, 0, Math.PI * 2);
-            ctx.fill();
-
+            if (cycle < 2) {
+                // Draw Bee (Morning / Golden Hour)
+                ctx.fillStyle = '#feca57'; 
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#3a3f3a';
+                ctx.fillRect(-2, -8, 4, 16);
+                const flap = Math.sin(Date.now() * 0.05) * 3;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.ellipse(-2, -8, 4, 6 + flap, Math.PI / 4, 0, Math.PI * 2);
+                ctx.ellipse(2, -8, 4, 6 + flap, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Draw Luna Moth (Dusk/Night)
+                const flap = Math.sin(Date.now() * 0.03) * 5; // Slower, elegant flap
+                ctx.fillStyle = '#fdfcf0'; // Fluffy white body
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 6, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Pale green wings
+                ctx.fillStyle = 'rgba(186, 220, 88, 0.85)'; 
+                ctx.beginPath();
+                ctx.ellipse(-8, -2, 12, 16 + flap, Math.PI / 6, 0, Math.PI * 2); // Left top
+                ctx.ellipse(8, -2, 12, 16 + flap, -Math.PI / 6, 0, Math.PI * 2); // Right top
+                ctx.ellipse(-6, 10, 8, 18 - flap, -Math.PI / 8, 0, Math.PI * 2); // Left tail
+                ctx.ellipse(6, 10, 8, 18 - flap, Math.PI / 8, 0, Math.PI * 2); // Right tail
+                ctx.fill();
+            }
             ctx.restore();
+        }
+    }
+
+    // --- Ambient Fireflies (Night Only) ---
+    class Firefly {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.offset = Math.random() * 100;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        draw() {
+            // Pulsing glow effect
+            const glow = (Math.sin(Date.now() * 0.002 + this.offset) + 1) / 2;
+            ctx.fillStyle = `rgba(241, 196, 15, ${glow * 0.8})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 2 + glow * 2, 0, Math.PI * 2);
+            ctx.fill();
         }
     }
 
     // --- The Native Flora ---
     class NativeFlower {
-        constructor() {
-            this.reset();
-        }
-
+        constructor() { this.reset(); }
         reset() {
             this.x = 30 + Math.random() * (canvas.width - 60);
             this.y = 30 + Math.random() * (canvas.height - 60);
             this.state = 'bud';
             this.bloomScale = 0;
-            
-            // Assign a random native species
             const species = ['susan', 'coneflower', 'aster'];
             this.type = species[Math.floor(Math.random() * species.length)];
         }
-
         draw() {
             if (this.state === 'bud') {
-                ctx.fillStyle = '#badc58';
+                // At night, buds are slightly darker
+                ctx.fillStyle = cycle < 2 ? '#badc58' : '#718055';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
                 ctx.fill();
             } else if (this.state === 'bloom') {
-                if (this.bloomScale < 1) this.bloomScale += 0.05;
-
+                if (this.bloomScale < 1) this.bloomScale += 0.03;
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.scale(this.bloomScale, this.bloomScale);
 
-                // Specific drawing logic per species
                 if (this.type === 'susan') {
-                    // Black-eyed Susan (Golden petals, dark center)
-                    ctx.fillStyle = '#f1c40f';
+                    ctx.fillStyle = cycle < 2 ? '#f1c40f' : '#d4ac0d'; // Dims slightly at night
                     for (let i = 0; i < 12; i++) {
                         ctx.rotate((Math.PI * 2) / 12);
                         ctx.beginPath();
@@ -128,27 +160,21 @@
                         ctx.fill();
                     }
                     ctx.fillStyle = '#2d3436';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
                 } 
                 else if (this.type === 'coneflower') {
-                    // Pale Purple Coneflower (Drooping pink/purple petals, spiky orange center)
-                    ctx.fillStyle = '#D980FA';
+                    ctx.fillStyle = cycle < 2 ? '#D980FA' : '#a262bd';
                     for (let i = 0; i < 10; i++) {
                         ctx.rotate((Math.PI * 2) / 10);
                         ctx.beginPath();
-                        ctx.ellipse(12, 4, 10, 3, Math.PI / 8, 0, Math.PI * 2); // Angled down
+                        ctx.ellipse(12, 4, 10, 3, Math.PI / 8, 0, Math.PI * 2); 
                         ctx.fill();
                     }
                     ctx.fillStyle = '#e67e22';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 7, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2); ctx.fill();
                 } 
                 else if (this.type === 'aster') {
-                    // New England Aster (Many thin purple petals, yellow center)
-                    ctx.fillStyle = '#9b59b6';
+                    ctx.fillStyle = cycle < 2 ? '#9b59b6' : '#734287';
                     for (let i = 0; i < 20; i++) {
                         ctx.rotate((Math.PI * 2) / 20);
                         ctx.beginPath();
@@ -156,25 +182,21 @@
                         ctx.fill();
                     }
                     ctx.fillStyle = '#f1c40f';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 5, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2); ctx.fill();
                 }
-
                 ctx.restore();
             }
         }
     }
 
     // --- Game Initialization & Loop ---
-
-    const bee = new Bee();
+    const pollinator = new Pollinator();
     const garden = [];
+    const fireflies = [];
     let resetTimer = null;
 
-    for (let i = 0; i < 20; i++) {
-        garden.push(new NativeFlower());
-    }
+    for (let i = 0; i < 20; i++) garden.push(new NativeFlower());
+    for (let i = 0; i < 15; i++) fireflies.push(new Firefly()); // Spawn fireflies
 
     function updateMouse(e) {
         const rect = canvas.getBoundingClientRect();
@@ -184,32 +206,53 @@
     canvas.addEventListener('mousemove', updateMouse);
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateMouse(e); });
 
+    function advanceTimeOfDay() {
+        cycle++;
+        if (cycle === 1) {
+            canvas.style.backgroundColor = '#fff3e0'; // Golden Hour
+            instructions.innerText = "The afternoon sun brings out new blooms.";
+        } else if (cycle === 2) {
+            canvas.style.backgroundColor = '#2c3e50'; // Dusk
+            instructions.style.color = '#fcfbf9'; // Make text readable on dark bg
+            instructions.innerText = "The Luna Moth takes the night shift.";
+        } else if (cycle > 2) {
+            // Final state achieved. No more resets.
+            instructions.innerText = "The ecosystem is at rest. Thanks for visiting.";
+        }
+    }
+
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         let bloomedCount = 0;
 
+        // Draw Fireflies if it's dusk
+        if (cycle >= 2) {
+            fireflies.forEach(f => { f.update(); f.draw(); });
+        }
+
         garden.forEach(flower => {
-            if (flower.state === 'bud') {
-                const dist = Math.hypot(bee.x - flower.x, bee.y - flower.y);
+            if (flower.state === 'bud' && cycle <= 2) {
+                const dist = Math.hypot(pollinator.x - flower.x, pollinator.y - flower.y);
                 if (dist < 30) flower.state = 'bloom';
-            } else {
+            } else if (flower.state === 'bloom') {
                 bloomedCount++;
             }
             flower.draw();
         });
 
-        // The Reset Logic (Phase 2)
-        if (bloomedCount === garden.length && !resetTimer) {
-            // Wait 4 seconds to admire the garden, then reset
+        // The Time Progression Logic
+        if (bloomedCount === garden.length && !resetTimer && cycle <= 2) {
             resetTimer = setTimeout(() => {
-                garden.forEach(flower => flower.reset());
+                advanceTimeOfDay();
+                if (cycle <= 2) {
+                    garden.forEach(flower => flower.reset());
+                }
                 resetTimer = null;
-            }, 4000);
+            }, 5000); // 5 seconds to admire before time advances
         }
 
-        bee.update();
-        bee.draw();
+        pollinator.update();
+        pollinator.draw();
 
         requestAnimationFrame(animate);
     }
