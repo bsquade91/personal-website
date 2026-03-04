@@ -6,33 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pollinator Garden | Creative Lab</title>
     <link rel="stylesheet" href="css/style.css">
-<style>
-    .game-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 85vh;
-        padding: 20px;
-    }
-    canvas {
-        background-color: #fcfbf9; /* Default Morning */
-        transition: background-color 4s ease-in-out; /* Smooth time-of-day transitions */
-        border-radius: 32px;
-        box-shadow: 0 6px 16px rgba(0,0,0,0.04);
-        border: 2px solid rgba(0,0,0,0.05);
-        cursor: none; 
-        touch-action: none; 
-    }
-    .instructions {
-        margin-top: 1rem;
-        color: #4a4a4a;
-        font-size: 0.9rem;
-        font-weight: bold;
-        text-align: center;
-        transition: color 4s ease;
-    }
-</style>
+    <style>
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 85vh;
+            padding: 20px;
+        }
+        canvas {
+            background-color: #fcfbf9; /* Default Morning */
+            transition: background-color 4s ease-in-out; /* Smooth time-of-day transitions */
+            border-radius: 32px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+            border: 2px solid rgba(0,0,0,0.05);
+            cursor: none; 
+            touch-action: none; 
+        }
+        .instructions {
+            margin-top: 1rem;
+            color: #4a4a4a;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            transition: color 4s ease;
+        }
+    </style>
 </head>
 <body>
     <main class="game-wrapper">
@@ -41,14 +41,17 @@
         <p class="instructions">Guide the bee to wake up the garden.</p>
     </main>
 
-    HTML
-
 <script>
     const canvas = document.getElementById('gardenCanvas');
     const ctx = canvas.getContext('2d');
     const instructions = document.querySelector('.instructions');
 
-    const horizonY = canvas.height * 0.45;
+    // --- Micro-Optimization: Cache Math ---
+    const TWO_PI = Math.PI * 2;
+    const PI = Math.PI;
+
+    // Changed to 'let' so it can update on window resize
+    let horizonY = canvas.height * 0.45; 
     const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
     let cycle = 0; // 0: Spring, 1: Summer, 2: Fall, 3: Night
     
@@ -60,42 +63,42 @@
             y: horizonY + Math.random() * (canvas.height - horizonY),
             height: 15 + Math.random() * 25,
             swaySpeed: 0.001 + Math.random() * 0.001,
-            swayOffset: Math.random() * Math.PI * 2
+            swayOffset: Math.random() * TWO_PI
         });
     }
 
     // The 4 Distinct Seasonal Palettes
     const palettes = {
         spring: {
-            skyTop: [210, 235, 255],     // Crisp morning blue
-            skyBottom: [245, 250, 245],  // Soft haze
+            skyTop: [210, 235, 255],     
+            skyBottom: [245, 250, 245],  
             hillDistant: [180, 210, 190],
             hillNear: [160, 200, 170],
-            field: [190, 225, 185],      // Fresh bright green
+            field: [190, 225, 185],      
             grass: [140, 190, 140]
         },
         summer: {
-            skyTop: [100, 180, 240],     // Deep, clear summer sky
+            skyTop: [100, 180, 240],     
             skyBottom: [200, 230, 250],
             hillDistant: [140, 190, 150],
             hillNear: [120, 170, 130],
-            field: [150, 200, 140],      // Rich, vibrant green
+            field: [150, 200, 140],      
             grass: [100, 160, 100]
         },
         fall: {
-            skyTop: [255, 210, 150],     // Golden hour / Amber
-            skyBottom: [255, 180, 120],  // Peach horizon
+            skyTop: [255, 210, 150],     
+            skyBottom: [255, 180, 120],  
             hillDistant: [220, 180, 140],
             hillNear: [200, 160, 120],
-            field: [230, 190, 140],      // Dry prairie wheat
+            field: [230, 190, 140],      
             grass: [180, 140, 100]
         },
         night: {
-            skyTop: [44, 62, 80],        // Deep twilight
-            skyBottom: [232, 126, 120],  // Beloved sunset pink horizon
+            skyTop: [44, 62, 80],        
+            skyBottom: [232, 126, 120],  
             hillDistant: [52, 73, 94],
             hillNear: [44, 62, 80],
-            field: [26, 37, 47],         // Night silhouettes
+            field: [26, 37, 47],         
             grass: [44, 62, 80]
         }
     };
@@ -164,21 +167,21 @@
 
             if (cycle < 3) {
                 // Bee (Spring, Summer, Fall)
-                ctx.fillStyle = '#feca57'; ctx.beginPath(); ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#feca57'; ctx.beginPath(); ctx.ellipse(0, 0, 12, 8, 0, 0, TWO_PI); ctx.fill();
                 ctx.fillStyle = '#3a3f3a'; ctx.fillRect(-2, -8, 4, 16);
                 const flap = Math.sin(Date.now() * 0.05) * 3;
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.beginPath(); ctx.ellipse(-2, -8, 4, 6 + flap, Math.PI / 4, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(2, -8, 4, 6 + flap, -Math.PI / 4, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(-2, -8, 4, 6 + flap, PI / 4, 0, TWO_PI); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(2, -8, 4, 6 + flap, -PI / 4, 0, TWO_PI); ctx.fill();
             } else {
                 // Luna Moth (Night)
                 const flap = Math.sin(Date.now() * 0.03) * 5; 
-                ctx.fillStyle = '#fdfcf0'; ctx.beginPath(); ctx.ellipse(0, 0, 6, 12, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fdfcf0'; ctx.beginPath(); ctx.ellipse(0, 0, 6, 12, 0, 0, TWO_PI); ctx.fill();
                 ctx.fillStyle = 'rgba(186, 220, 88, 0.85)'; 
-                ctx.beginPath(); ctx.ellipse(-8, -2, 12, 16 + flap, Math.PI / 6, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(8, -2, 12, 16 + flap, -Math.PI / 6, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(-6, 10, 8, 18 - flap, -Math.PI / 8, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(6, 10, 8, 18 - flap, Math.PI / 8, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(-8, -2, 12, 16 + flap, PI / 6, 0, TWO_PI); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(8, -2, 12, 16 + flap, -PI / 6, 0, TWO_PI); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(-6, 10, 8, 18 - flap, -PI / 8, 0, TWO_PI); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(6, 10, 8, 18 - flap, PI / 8, 0, TWO_PI); ctx.fill();
             }
             ctx.restore();
         }
@@ -199,7 +202,7 @@
         draw() {
             const glow = (Math.sin(Date.now() * 0.002 + this.offset) + 1) / 2;
             ctx.fillStyle = `rgba(241, 196, 15, ${glow * 0.8})`;
-            ctx.beginPath(); ctx.arc(this.x, this.y, 2 + glow * 2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, 2 + glow * 2, 0, TWO_PI); ctx.fill();
         }
     }
 
@@ -212,7 +215,6 @@
             this.state = 'bud';
             this.bloomScale = 0;
             
-            // Assign specific species based on the current season
             const springSpecies = ['bluebell', 'columbine', 'verbena'];
             const summerSpecies = ['susan', 'coneflower', 'butterflyweed'];
             const fallSpecies = ['aster', 'goldenrod', 'cardinal'];
@@ -227,7 +229,7 @@
         draw() {
             if (this.state === 'bud') {
                 ctx.fillStyle = cycle < 3 ? '#badc58' : '#5f6e46';
-                ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, TWO_PI); ctx.fill();
             } else if (this.state === 'bloom') {
                 if (this.bloomScale < 1) this.bloomScale += 0.04;
                 ctx.save();
@@ -237,59 +239,59 @@
                 // --- SPRING FLOWERS ---
                 if (this.type === 'bluebell') {
                     ctx.fillStyle = '#74b9ff';
-                    ctx.beginPath(); ctx.arc(-4, 2, 5, 0, Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(4, 2, 5, 0, Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(0, 6, 5, 0, Math.PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(-4, 2, 5, 0, PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(4, 2, 5, 0, PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(0, 6, 5, 0, PI); ctx.fill();
                 } else if (this.type === 'columbine') {
                     ctx.fillStyle = '#e74c3c';
-                    for(let i=0; i<5; i++){ ctx.rotate((Math.PI*2)/5); ctx.beginPath(); ctx.ellipse(0, 6, 3, 8, 0, 0, Math.PI*2); ctx.fill(); }
-                    ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(0,0,4,0,Math.PI*2); ctx.fill();
+                    for(let i=0; i<5; i++){ ctx.rotate(TWO_PI/5); ctx.beginPath(); ctx.ellipse(0, 6, 3, 8, 0, 0, TWO_PI); ctx.fill(); }
+                    ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(0,0,4,0,TWO_PI); ctx.fill();
                 } else if (this.type === 'verbena') {
                     ctx.fillStyle = '#fd79a8';
-                    ctx.beginPath(); ctx.arc(-4,-4,4,0,Math.PI*2); ctx.arc(4,-4,4,0,Math.PI*2); ctx.arc(-4,4,4,0,Math.PI*2); ctx.arc(4,4,4,0,Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(-4,-4,4,0,TWO_PI); ctx.arc(4,-4,4,0,TWO_PI); ctx.arc(-4,4,4,0,TWO_PI); ctx.arc(4,4,4,0,TWO_PI); ctx.fill();
                 }
                 // --- SUMMER FLOWERS ---
                 else if (this.type === 'susan') {
                     ctx.fillStyle = '#f1c40f';
-                    for(let i=0; i<12; i++){ ctx.rotate((Math.PI*2)/12); ctx.beginPath(); ctx.ellipse(10,0,8,3,0,0,Math.PI*2); ctx.fill(); }
-                    ctx.fillStyle = '#2d3436'; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill();
+                    for(let i=0; i<12; i++){ ctx.rotate(TWO_PI/12); ctx.beginPath(); ctx.ellipse(10,0,8,3,0,0,TWO_PI); ctx.fill(); }
+                    ctx.fillStyle = '#2d3436'; ctx.beginPath(); ctx.arc(0,0,6,0,TWO_PI); ctx.fill();
                 } else if (this.type === 'coneflower') {
                     ctx.fillStyle = '#D980FA';
-                    for(let i=0; i<10; i++){ ctx.rotate((Math.PI*2)/10); ctx.beginPath(); ctx.ellipse(12,4,10,3,Math.PI/8,0,Math.PI*2); ctx.fill(); }
-                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(0,0,7,0,Math.PI*2); ctx.fill();
+                    for(let i=0; i<10; i++){ ctx.rotate(TWO_PI/10); ctx.beginPath(); ctx.ellipse(12,4,10,3,PI/8,0,TWO_PI); ctx.fill(); }
+                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(0,0,7,0,TWO_PI); ctx.fill();
                 } else if (this.type === 'butterflyweed') {
                     ctx.fillStyle = '#e67e22';
-                    for(let i=0; i<8; i++){ ctx.beginPath(); ctx.arc(-8 + Math.random()*16, -8 + Math.random()*16, 3, 0, Math.PI*2); ctx.fill(); }
+                    for(let i=0; i<8; i++){ ctx.beginPath(); ctx.arc(-8 + Math.random()*16, -8 + Math.random()*16, 3, 0, TWO_PI); ctx.fill(); }
                 }
                 // --- FALL FLOWERS ---
                 else if (this.type === 'aster') {
                     ctx.fillStyle = '#9b59b6';
-                    for(let i=0; i<20; i++){ ctx.rotate((Math.PI*2)/20); ctx.beginPath(); ctx.ellipse(10,0,9,2,0,0,Math.PI*2); ctx.fill(); }
-                    ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fill();
+                    for(let i=0; i<20; i++){ ctx.rotate(TWO_PI/20); ctx.beginPath(); ctx.ellipse(10,0,9,2,0,0,TWO_PI); ctx.fill(); }
+                    ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(0,0,5,0,TWO_PI); ctx.fill();
                 } else if (this.type === 'goldenrod') {
                     ctx.fillStyle = '#2ecc71'; ctx.fillRect(-1, 0, 2, 20);
                     ctx.fillStyle = '#f1c40f';
-                    for(let i=0; i<10; i++){ ctx.beginPath(); ctx.arc(-4 + Math.random()*8, Math.random()*15, 2.5, 0, Math.PI*2); ctx.fill(); }
+                    for(let i=0; i<10; i++){ ctx.beginPath(); ctx.arc(-4 + Math.random()*8, Math.random()*15, 2.5, 0, TWO_PI); ctx.fill(); }
                 } else if (this.type === 'cardinal') {
                     ctx.fillStyle = '#2ecc71'; ctx.fillRect(-1, 0, 2, 20);
                     ctx.fillStyle = '#e74c3c';
-                    for(let i=0; i<8; i++){ ctx.beginPath(); ctx.ellipse(0, i*2.5, 6, 2, 0, 0, Math.PI*2); ctx.fill(); }
+                    for(let i=0; i<8; i++){ ctx.beginPath(); ctx.ellipse(0, i*2.5, 6, 2, 0, 0, TWO_PI); ctx.fill(); }
                 }
                 // --- NIGHT FLOWERS ---
                 else if (this.type === 'moonflower') {
                     ctx.fillStyle = '#ffffff';
-                    for(let i=0; i<5; i++){ ctx.rotate((Math.PI*2)/5); ctx.beginPath(); ctx.arc(6, 0, 8, 0, Math.PI*2); ctx.fill(); }
-                    ctx.fillStyle = '#eafaf1'; ctx.beginPath(); ctx.arc(0,0,4,0,Math.PI*2); ctx.fill();
+                    for(let i=0; i<5; i++){ ctx.rotate(TWO_PI/5); ctx.beginPath(); ctx.arc(6, 0, 8, 0, TWO_PI); ctx.fill(); }
+                    ctx.fillStyle = '#eafaf1'; ctx.beginPath(); ctx.arc(0,0,4,0,TWO_PI); ctx.fill();
                 } else if (this.type === 'primrose') {
                     ctx.fillStyle = '#fef9e7';
-                    for(let i=0; i<4; i++){ ctx.rotate((Math.PI*2)/4); ctx.beginPath(); ctx.ellipse(8,0,8,6,0,0,Math.PI*2); ctx.fill(); }
-                    ctx.fillStyle = '#f5b041'; ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
+                    for(let i=0; i<4; i++){ ctx.rotate(TWO_PI/4); ctx.beginPath(); ctx.ellipse(8,0,8,6,0,0,TWO_PI); ctx.fill(); }
+                    ctx.fillStyle = '#f5b041'; ctx.beginPath(); ctx.arc(0,0,3,0,TWO_PI); ctx.fill();
                 } else if (this.type === 'yucca') {
                     ctx.fillStyle = '#2ecc71'; ctx.fillRect(-1, -10, 2, 20);
                     ctx.fillStyle = '#ffffff';
-                    ctx.beginPath(); ctx.arc(-4, -5, 4, 0, Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(4, 0, 4, 0, Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(-4, 5, 4, 0, Math.PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(-4, -5, 4, 0, PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(4, 0, 4, 0, PI); ctx.fill();
+                    ctx.beginPath(); ctx.arc(-4, 5, 4, 0, PI); ctx.fill();
                 }
                 ctx.restore();
             }
@@ -310,8 +312,23 @@
         mouse.x = (e.clientX || e.touches[0].clientX) - rect.left;
         mouse.y = (e.clientY || e.touches[0].clientY) - rect.top;
     }
+    
+    // Support for Mouse & Touch
     canvas.addEventListener('mousemove', updateMouse);
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateMouse(e); });
+
+    // --- Responsive Resize Listener ---
+    window.addEventListener('resize', () => {
+        const wrapper = document.querySelector('.game-wrapper');
+        canvas.width = Math.min(wrapper.clientWidth - 40, 600); 
+        horizonY = canvas.height * 0.45;
+        
+        // Redistribute grass so it doesn't bunch up or leave gaps on resize
+        grassBlades.forEach(blade => {
+            blade.x = Math.random() * canvas.width;
+            blade.y = horizonY + Math.random() * (canvas.height - horizonY);
+        });
+    });
 
     function advanceTimeOfDay() {
         cycle++;
@@ -367,5 +384,9 @@
         requestAnimationFrame(animate);
     }
 
+    // Trigger initial resize to set proper canvas width on load
+    window.dispatchEvent(new Event('resize'));
     animate();
 </script>
+</body>
+</html>
