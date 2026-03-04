@@ -16,8 +16,8 @@
             padding: 20px;
         }
         canvas {
-            background-color: #fcfbf9; /* Default Morning */
-            transition: background-color 4s ease-in-out; /* Smooth time-of-day transitions */
+            background-color: #fcfbf9;
+            transition: background-color 4s ease-in-out; 
             border-radius: 32px;
             box-shadow: 0 6px 16px rgba(0,0,0,0.04);
             border: 2px solid rgba(0,0,0,0.05);
@@ -46,16 +46,15 @@
     const ctx = canvas.getContext('2d');
     const instructions = document.querySelector('.instructions');
 
-    // --- Micro-Optimization: Cache Math ---
     const TWO_PI = Math.PI * 2;
     const PI = Math.PI;
 
-    // Changed to 'let' so it can update on window resize
     let horizonY = canvas.height * 0.45; 
     const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
-    let cycle = 0; // 0: Spring, 1: Summer, 2: Fall, 3: Night
     
-    // --- The Landscape Engine ---
+    // 0: Spring, 1: Summer, 2: Fall, 3: Night, 4: Thank You, 5: Winter
+    let cycle = 0; 
+    
     const grassBlades = [];
     for (let i = 0; i < 80; i++) {
         grassBlades.push({
@@ -67,7 +66,6 @@
         });
     }
 
-    // The 4 Distinct Seasonal Palettes
     const palettes = {
         spring: {
             skyTop: [210, 235, 255],     
@@ -100,6 +98,14 @@
             hillNear: [44, 62, 80],
             field: [26, 37, 47],         
             grass: [44, 62, 80]
+        },
+        winter: {
+            skyTop: [160, 180, 200],     
+            skyBottom: [220, 230, 240],  
+            hillDistant: [210, 220, 230],
+            hillNear: [230, 240, 250],
+            field: [240, 245, 250],      
+            grass: [200, 210, 220]
         }
     };
 
@@ -120,28 +126,24 @@
             colors[key] = lerpColor(currentPalette[key], targetPalette[key], speed);
         }
         
-        // 1. Sky Gradient
         const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
         skyGrad.addColorStop(0, colors.skyTop);
         skyGrad.addColorStop(1, colors.skyBottom);
         ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, canvas.width, horizonY);
 
-        // 2. Distant Hill
         ctx.fillStyle = colors.hillDistant;
         ctx.beginPath();
         ctx.moveTo(0, horizonY);
         ctx.bezierCurveTo(canvas.width * 0.5, horizonY - 30, canvas.width * 0.8, horizonY - 10, canvas.width, horizonY - 20);
         ctx.lineTo(canvas.width, canvas.height); ctx.lineTo(0, canvas.height); ctx.fill();
 
-        // 3. Near Hill / Field
         ctx.fillStyle = colors.field;
         ctx.beginPath();
         ctx.moveTo(0, horizonY + 10);
         ctx.bezierCurveTo(canvas.width * 0.2, horizonY - 5, canvas.width * 0.6, horizonY + 25, canvas.width, horizonY + 5);
         ctx.lineTo(canvas.width, canvas.height); ctx.lineTo(0, canvas.height); ctx.fill();
 
-        // 4. Grass
         ctx.strokeStyle = colors.grass;
         ctx.lineWidth = 2; ctx.lineCap = 'round';
         grassBlades.forEach(blade => {
@@ -153,7 +155,6 @@
         });
     }
 
-    // --- The Pollinator ---
     class Pollinator {
         constructor() { this.x = canvas.width/2; this.y = canvas.height/2; this.easing = 0.04; }
         update() {
@@ -166,7 +167,6 @@
             ctx.rotate((mouse.x - this.x) * 0.005);
 
             if (cycle < 3) {
-                // Bee (Spring, Summer, Fall)
                 ctx.fillStyle = '#feca57'; ctx.beginPath(); ctx.ellipse(0, 0, 12, 8, 0, 0, TWO_PI); ctx.fill();
                 ctx.fillStyle = '#3a3f3a'; ctx.fillRect(-2, -8, 4, 16);
                 const flap = Math.sin(Date.now() * 0.05) * 3;
@@ -174,7 +174,6 @@
                 ctx.beginPath(); ctx.ellipse(-2, -8, 4, 6 + flap, PI / 4, 0, TWO_PI); ctx.fill();
                 ctx.beginPath(); ctx.ellipse(2, -8, 4, 6 + flap, -PI / 4, 0, TWO_PI); ctx.fill();
             } else {
-                // Luna Moth (Night)
                 const flap = Math.sin(Date.now() * 0.03) * 5; 
                 ctx.fillStyle = '#fdfcf0'; ctx.beginPath(); ctx.ellipse(0, 0, 6, 12, 0, 0, TWO_PI); ctx.fill();
                 ctx.fillStyle = 'rgba(186, 220, 88, 0.85)'; 
@@ -187,7 +186,6 @@
         }
     }
 
-    // --- Fireflies ---
     class Firefly {
         constructor() {
             this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
@@ -206,7 +204,28 @@
         }
     }
 
-  // --- The Seasonal Native Flora ---
+    // --- Snow Particles for Winter ---
+    class Snowflake {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = 0.5 + Math.random() * 1.5;
+            this.size = 1 + Math.random() * 2;
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            if (this.y > canvas.height) {
+                this.y = -5;
+                this.x = Math.random() * canvas.width;
+            }
+        }
+        draw() {
+            ctx.fillStyle = `rgba(255, 255, 255, 0.8)`;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, TWO_PI); ctx.fill();
+        }
+    }
+
     class NativeFlower {
         constructor() { this.reset(); }
         reset() {
@@ -223,20 +242,23 @@
             if (cycle === 0) this.type = springSpecies[Math.floor(Math.random() * 3)];
             else if (cycle === 1) this.type = summerSpecies[Math.floor(Math.random() * 3)];
             else if (cycle === 2) this.type = fallSpecies[Math.floor(Math.random() * 3)];
-            else this.type = nightSpecies[Math.floor(Math.random() * 3)];
+            else if (cycle === 3) this.type = nightSpecies[Math.floor(Math.random() * 3)];
         }
         
         draw() {
             if (this.state === 'bud') {
-                ctx.fillStyle = cycle < 3 ? '#badc58' : '#5f6e46';
-                ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, TWO_PI); ctx.fill();
+                ctx.fillStyle = cycle < 3 ? 'rgba(186, 220, 88, 0.85)' : 'rgba(95, 110, 70, 0.85)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, 4.5, 0, TWO_PI); ctx.fill();
             } else if (this.state === 'bloom') {
-                if (this.bloomScale < 1) this.bloomScale += 0.04;
+                // Increased max size to 1.7 for bigger flowers
+                if (this.bloomScale < 1.7) this.bloomScale += 0.03; 
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.scale(this.bloomScale, this.bloomScale);
+                
+                // Softens the colors to align better with the soft landscape background
+                ctx.globalAlpha = 0.85; 
 
-                // --- SPRING FLOWERS ---
                 if (this.type === 'bluebell') {
                     ctx.fillStyle = '#74b9ff';
                     const drawBell = (bx, by, rot) => {
@@ -256,7 +278,6 @@
                     for(let i=0; i<5; i++) { ctx.rotate(TWO_PI/5); ctx.beginPath(); ctx.arc(4, 0, 4, 0, TWO_PI); ctx.fill(); }
                     ctx.fillStyle = '#e84393'; ctx.beginPath(); ctx.arc(0,0,3,0,TWO_PI); ctx.fill();
                 }
-                // --- SUMMER FLOWERS ---
                 else if (this.type === 'susan') {
                     ctx.fillStyle = '#f1c40f';
                     for(let i=0; i<12; i++){ ctx.rotate(TWO_PI/12); ctx.beginPath(); ctx.ellipse(10,0,8,3,0,0,TWO_PI); ctx.fill(); }
@@ -270,7 +291,6 @@
                     const petals = [[0,-4], [5,-2], [3,4], [-3,4], [-5,-2], [0,0], [4,-6], [-4,-6]];
                     petals.forEach(([px, py]) => { ctx.beginPath(); ctx.arc(px, py, 3, 0, TWO_PI); ctx.fill(); });
                 }
-                // --- FALL FLOWERS ---
                 else if (this.type === 'aster') {
                     ctx.fillStyle = '#9b59b6';
                     for(let i=0; i<20; i++){ ctx.rotate(TWO_PI/20); ctx.beginPath(); ctx.ellipse(10,0,9,2,0,0,TWO_PI); ctx.fill(); }
@@ -290,7 +310,6 @@
                         ctx.beginPath(); ctx.arc(0, y-1, 2, 0, TWO_PI); ctx.fill();
                     }
                 }
-                // --- NIGHT FLOWERS ---
                 else if (this.type === 'moonflower') {
                     ctx.fillStyle = '#ffffff';
                     for(let i=0; i<5; i++){ ctx.rotate(TWO_PI/5); ctx.beginPath(); ctx.arc(6, 0, 8, 0, TWO_PI); ctx.fill(); }
@@ -311,14 +330,15 @@
         }
     }
     
-    // --- Initialization & Loop ---
     const pollinator = new Pollinator();
     const garden = [];
     const fireflies = [];
+    const snow = [];
     let resetTimer = null;
 
     for (let i = 0; i < 20; i++) garden.push(new NativeFlower());
     for (let i = 0; i < 20; i++) fireflies.push(new Firefly()); 
+    for (let i = 0; i < 50; i++) snow.push(new Snowflake()); 
 
     function updateMouse(e) {
         const rect = canvas.getBoundingClientRect();
@@ -326,17 +346,14 @@
         mouse.y = (e.clientY || e.touches[0].clientY) - rect.top;
     }
     
-    // Support for Mouse & Touch
     canvas.addEventListener('mousemove', updateMouse);
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateMouse(e); });
 
-    // --- Responsive Resize Listener ---
     window.addEventListener('resize', () => {
         const wrapper = document.querySelector('.game-wrapper');
         canvas.width = Math.min(wrapper.clientWidth - 40, 600); 
         horizonY = canvas.height * 0.45;
         
-        // Redistribute grass so it doesn't bunch up or leave gaps on resize
         grassBlades.forEach(blade => {
             blade.x = Math.random() * canvas.width;
             blade.y = horizonY + Math.random() * (canvas.height - horizonY);
@@ -355,8 +372,14 @@
             targetPalette = { ...palettes.night };
             instructions.style.color = '#fcfbf9'; 
             instructions.innerText = "A Luna Moth emerges at night.";
-        } else if (cycle > 3) {
+        } else if (cycle === 4) {
+            // "Thank you" phase. Still dark, flowers still visible.
             instructions.innerText = "Thank you for visiting my corner of the internet.";
+        } else if (cycle === 5) {
+            // Winter phase. 
+            targetPalette = { ...palettes.winter };
+            instructions.style.color = '#4a4a4a'; 
+            instructions.innerText = "The garden rests for winter...";
         }
     }
 
@@ -366,38 +389,64 @@
 
         let bloomedCount = 0;
 
-        if (cycle >= 3) {
+        if (cycle === 3 || cycle === 4) {
             fireflies.forEach(f => { f.update(); f.draw(); });
+        } else if (cycle === 5) {
+            snow.forEach(s => { s.update(); s.draw(); });
         }
 
-        garden.forEach(flower => {
-            if (flower.state === 'bud' && cycle <= 3) {
-                const dist = Math.hypot(pollinator.x - flower.x, pollinator.y - flower.y);
-                if (dist < 30) flower.state = 'bloom';
-            } else if (flower.state === 'bloom') {
-                bloomedCount++;
-            }
-            flower.draw();
-        });
-
-        // 4 Resets Total
-        if (bloomedCount === garden.length && !resetTimer && cycle <= 3) {
-            resetTimer = setTimeout(() => {
-                advanceTimeOfDay();
-                if (cycle <= 3) {
-                    garden.forEach(flower => flower.reset());
+        // Only draw flowers in seasons 0, 1, 2, 3, and 4
+        if (cycle < 5) {
+            garden.forEach(flower => {
+                if (flower.state === 'bud' && cycle <= 3) {
+                    const dist = Math.hypot(pollinator.x - flower.x, pollinator.y - flower.y);
+                    if (dist < 30) flower.state = 'bloom';
+                } else if (flower.state === 'bloom') {
+                    bloomedCount++;
                 }
-                resetTimer = null;
-            }, 5000); 
+                flower.draw();
+            });
         }
 
-        pollinator.update();
-        pollinator.draw();
+        // Scene Transition Timers
+        if (!resetTimer) {
+            // Spring -> Summer -> Fall -> Night
+            if (cycle <= 3 && bloomedCount === garden.length) {
+                resetTimer = setTimeout(() => {
+                    advanceTimeOfDay();
+                    if (cycle <= 3) garden.forEach(flower => flower.reset());
+                    resetTimer = null;
+                }, 4000); 
+            } 
+            // Night -> Thank You Transition
+            else if (cycle === 4) {
+                resetTimer = setTimeout(() => {
+                    advanceTimeOfDay(); // Move to Winter
+                    resetTimer = null;
+                }, 4000); // Show Thank You for 4 seconds
+            } 
+            // Winter -> Reset to Spring
+            else if (cycle === 5) {
+                resetTimer = setTimeout(() => {
+                    cycle = 0;
+                    targetPalette = { ...palettes.spring };
+                    instructions.style.color = '#4a4a4a';
+                    instructions.innerText = "Guide the bee to wake up the garden.";
+                    garden.forEach(flower => flower.reset());
+                    resetTimer = null;
+                }, 6000); // Stay in Winter for 6 seconds
+            }
+        }
+
+        // Only draw the pollinator if it's not winter
+        if (cycle < 5) {
+            pollinator.update();
+            pollinator.draw();
+        }
 
         requestAnimationFrame(animate);
     }
 
-    // Trigger initial resize to set proper canvas width on load
     window.dispatchEvent(new Event('resize'));
     animate();
 </script>
