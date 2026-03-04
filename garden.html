@@ -41,62 +41,118 @@
         <p class="instructions">Guide the bee to wake up the garden.</p>
     </main>
 
-    <script>
+    HTML
+
+<script>
     const canvas = document.getElementById('gardenCanvas');
     const ctx = canvas.getContext('2d');
     const instructions = document.querySelector('.instructions');
 
+    // Establish the horizon line at 40% down the canvas
+    const horizonY = canvas.height * 0.4;
+
     const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
     let cycle = 0; 
     
-    // --- The Landscape Engine (New Prairie Field) ---
+    // --- The Landscape Engine (Layered Prairie) ---
     const grassBlades = [];
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 80; i++) {
         grassBlades.push({
             x: Math.random() * canvas.width,
-            height: 20 + Math.random() * 40,
+            // Grass grows from the horizon down to the bottom
+            y: horizonY + Math.random() * (canvas.height - horizonY),
+            height: 15 + Math.random() * 25,
             swaySpeed: 0.001 + Math.random() * 0.001,
             swayOffset: Math.random() * Math.PI * 2
         });
     }
 
-    // Color interpolation for smooth time-of-day transitions
-    let currentGroundColor = { r: 218, g: 235, b: 211 }; // Morning soft green
-    let targetGroundColor = { r: 218, g: 235, b: 211 };
+    // Color Palettes for Time of Day
+    const palettes = {
+        morning: {
+            skyTop: [252, 251, 249], // Warm white
+            skyBottom: [218, 235, 211], // Soft hazy green at horizon
+            hillDistant: [194, 214, 188], // Lighter, hazier
+            hillNear: [173, 196, 166], // Slightly darker
+            field: [218, 235, 211], // Main ground color
+            grass: [150, 175, 140] // Detail color
+        },
+        goldenHour: {
+            skyTop: [255, 243, 224], // Warm orange-white
+            skyBottom: [255, 224, 178], // Golden horizon
+            hillDistant: [230, 206, 165], 
+            hillNear: [214, 190, 147],
+            field: [232, 213, 181], // Warm wheat
+            grass: [194, 174, 140]
+        },
+        dusk: {
+            skyTop: [44, 62, 80], // Deep blue
+            skyBottom: [232, 126, 120], // Sunset pink/salmon at horizon
+            hillDistant: [52, 73, 94], // Dark blue-grey
+            hillNear: [44, 62, 80], // Darker silhouette
+            field: [26, 37, 47], // Deep night ground
+            grass: [44, 62, 80]
+        }
+    };
 
-    function updateLandscapeColor() {
-        // Smoothly shift the current color toward the target color (Lerp)
-        currentGroundColor.r += (targetGroundColor.r - currentGroundColor.r) * 0.02;
-        currentGroundColor.g += (targetGroundColor.g - currentGroundColor.g) * 0.02;
-        currentGroundColor.b += (targetGroundColor.b - currentGroundColor.b) * 0.02;
-        
-        const r = Math.round(currentGroundColor.r);
-        const g = Math.round(currentGroundColor.g);
-        const b = Math.round(currentGroundColor.b);
-        return { solid: `rgb(${r}, ${g}, ${b})`, semi: `rgba(${r}, ${g}, ${b}, 0.5)` };
+    let currentPalette = { ...palettes.morning };
+    let targetPalette = { ...palettes.morning };
+
+    // Helper to interpolate between two RGB arrays
+    function lerpColor(current, target, speed) {
+        current[0] += (target[0] - current[0]) * speed;
+        current[1] += (target[1] - current[1]) * speed;
+        current[2] += (target[2] - current[2]) * speed;
+        return `rgb(${Math.round(current[0])}, ${Math.round(current[1])}, ${Math.round(current[2])})`;
     }
 
-    function drawPrairie() {
-        const colors = updateLandscapeColor();
+    function updateLandscapeColors() {
+        const speed = 0.02;
+        const colors = {};
+        for (const key in currentPalette) {
+            colors[key] = lerpColor(currentPalette[key], targetPalette[key], speed);
+        }
+        return colors;
+    }
 
-        // 1. Draw distant rolling hill
-        ctx.fillStyle = colors.semi;
+    function drawScene() {
+        const colors = updateLandscapeColors();
+        
+        // 1. Sky Gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+        skyGrad.addColorStop(0, colors.skyTop);
+        skyGrad.addColorStop(1, colors.skyBottom);
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, canvas.width, horizonY);
+
+        // 2. Distant Hill (Hazier, flatter)
+        ctx.fillStyle = colors.hillDistant;
         ctx.beginPath();
-        ctx.moveTo(0, canvas.height);
-        ctx.bezierCurveTo(canvas.width * 0.3, canvas.height * 0.5, canvas.width * 0.7, canvas.height * 0.8, canvas.width, canvas.height * 0.4);
+        ctx.moveTo(0, horizonY);
+        ctx.bezierCurveTo(canvas.width * 0.5, horizonY - 30, canvas.width * 0.8, horizonY - 10, canvas.width, horizonY - 20);
         ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineTo(0, canvas.height);
         ctx.fill();
 
-        // 2. Draw gently swaying foreground grass
-        ctx.strokeStyle = colors.solid;
-        ctx.lineWidth = 3;
+        // 3. Near Hill (Main prairie field)
+        ctx.fillStyle = colors.field;
+        ctx.beginPath();
+        ctx.moveTo(0, horizonY + 10);
+        ctx.bezierCurveTo(canvas.width * 0.2, horizonY - 5, canvas.width * 0.6, horizonY + 25, canvas.width, horizonY + 5);
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineTo(0, canvas.height);
+        ctx.fill();
+
+        // 4. Foreground Grass Details
+        ctx.strokeStyle = colors.grass;
+        ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         grassBlades.forEach(blade => {
-            // Trigonometry creates the calming, rhythmic wind effect
-            const sway = Math.sin(Date.now() * blade.swaySpeed + blade.swayOffset) * 15;
+            const sway = Math.sin(Date.now() * blade.swaySpeed + blade.swayOffset) * 10;
             ctx.beginPath();
-            ctx.moveTo(blade.x, canvas.height);
-            ctx.quadraticCurveTo(blade.x + sway / 2, canvas.height - blade.height / 2, blade.x + sway, canvas.height - blade.height);
+            // Draw from the blade's base Y position upwards
+            ctx.moveTo(blade.x, blade.y);
+            ctx.quadraticCurveTo(blade.x + sway / 2, blade.y - blade.height / 2, blade.x + sway, blade.y - blade.height);
             ctx.stroke();
         });
     }
@@ -108,12 +164,10 @@
             this.y = canvas.height / 2;
             this.easing = 0.04; 
         }
-
         update() {
             this.x += (mouse.x - this.x) * this.easing;
             this.y += (mouse.y - this.y) * this.easing;
         }
-
         draw() {
             ctx.save();
             ctx.translate(this.x, this.y);
@@ -121,19 +175,17 @@
             ctx.rotate(dx * 0.005);
 
             if (cycle < 2) {
-                // Draw Bee
-                ctx.fillStyle = '#feca57'; 
-                ctx.beginPath(); ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2); ctx.fill();
+                // Bee
+                ctx.fillStyle = '#feca57'; ctx.beginPath(); ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#3a3f3a'; ctx.fillRect(-2, -8, 4, 16);
                 const flap = Math.sin(Date.now() * 0.05) * 3;
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.beginPath(); ctx.ellipse(-2, -8, 4, 6 + flap, Math.PI / 4, 0, Math.PI * 2); ctx.fill();
                 ctx.beginPath(); ctx.ellipse(2, -8, 4, 6 + flap, -Math.PI / 4, 0, Math.PI * 2); ctx.fill();
             } else {
-                // Draw Luna Moth
+                // Luna Moth
                 const flap = Math.sin(Date.now() * 0.03) * 5; 
-                ctx.fillStyle = '#fdfcf0'; 
-                ctx.beginPath(); ctx.ellipse(0, 0, 6, 12, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fdfcf0'; ctx.beginPath(); ctx.ellipse(0, 0, 6, 12, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = 'rgba(186, 220, 88, 0.85)'; 
                 ctx.beginPath(); ctx.ellipse(-8, -2, 12, 16 + flap, Math.PI / 6, 0, Math.PI * 2); ctx.fill();
                 ctx.beginPath(); ctx.ellipse(8, -2, 12, 16 + flap, -Math.PI / 6, 0, Math.PI * 2); ctx.fill();
@@ -169,17 +221,23 @@
     class NativeFlower {
         constructor() { this.reset(); }
         reset() {
-            this.x = 30 + Math.random() * (canvas.width - 60);
-            // Keep flowers roughly in the prairie field area
-            this.y = (canvas.height * 0.4) + Math.random() * (canvas.height * 0.5);
+            this.x = 20 + Math.random() * (canvas.width - 40);
+            // **FIXED PLACEMENT:** Only spawn below the horizon line with a buffer
+            this.y = horizonY + 20 + Math.random() * (canvas.height - horizonY - 40);
             this.state = 'bud';
             this.bloomScale = 0;
             const species = ['susan', 'coneflower', 'aster'];
             this.type = species[Math.floor(Math.random() * species.length)];
         }
         draw() {
+            // Colors updated to match the new palettes
+            let budColor, petalColor, centerColor;
+            if (cycle === 0) { budColor='#badc58'; petalColor={susan:'#f1c40f',cone:'#D980FA',aster:'#9b59b6'}; centerColor='#2d3436'; }
+            else if (cycle === 1) { budColor='#c0b869'; petalColor={susan:'#e1b12c',cone:'#c27ba0',aster:'#8e44ad'}; centerColor='#4a3f35'; }
+            else { budColor='#5f6e46'; petalColor={susan:'#b08f0a',cone:'#8e54a3',aster:'#643975'}; centerColor='#1a1a2e'; }
+
             if (this.state === 'bud') {
-                ctx.fillStyle = cycle < 2 ? '#badc58' : '#5f6e46';
+                ctx.fillStyle = budColor;
                 ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, Math.PI * 2); ctx.fill();
             } else if (this.state === 'bloom') {
                 if (this.bloomScale < 1) this.bloomScale += 0.03;
@@ -188,28 +246,17 @@
                 ctx.scale(this.bloomScale, this.bloomScale);
 
                 if (this.type === 'susan') {
-                    ctx.fillStyle = cycle < 2 ? '#f1c40f' : '#b08f0a'; 
-                    for (let i = 0; i < 12; i++) {
-                        ctx.rotate((Math.PI * 2) / 12);
-                        ctx.beginPath(); ctx.ellipse(10, 0, 8, 3, 0, 0, Math.PI * 2); ctx.fill();
-                    }
-                    ctx.fillStyle = '#2d3436'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
-                } 
-                else if (this.type === 'coneflower') {
-                    ctx.fillStyle = cycle < 2 ? '#D980FA' : '#8e54a3';
-                    for (let i = 0; i < 10; i++) {
-                        ctx.rotate((Math.PI * 2) / 10);
-                        ctx.beginPath(); ctx.ellipse(12, 4, 10, 3, Math.PI / 8, 0, Math.PI * 2); ctx.fill();
-                    }
-                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2); ctx.fill();
-                } 
-                else if (this.type === 'aster') {
-                    ctx.fillStyle = cycle < 2 ? '#9b59b6' : '#643975';
-                    for (let i = 0; i < 20; i++) {
-                        ctx.rotate((Math.PI * 2) / 20);
-                        ctx.beginPath(); ctx.ellipse(10, 0, 9, 2, 0, 0, Math.PI * 2); ctx.fill();
-                    }
-                    ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = petalColor.susan;
+                    for (let i=0; i<12; i++) { ctx.rotate((Math.PI*2)/12); ctx.beginPath(); ctx.ellipse(10,0,8,3,0,0,Math.PI*2); ctx.fill(); }
+                    ctx.fillStyle = centerColor; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill();
+                } else if (this.type === 'coneflower') {
+                    ctx.fillStyle = petalColor.cone;
+                    for (let i=0; i<10; i++) { ctx.rotate((Math.PI*2)/10); ctx.beginPath(); ctx.ellipse(12,4,10,3,Math.PI/8,0,Math.PI*2); ctx.fill(); }
+                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.arc(0,0,7,0,Math.PI*2); ctx.fill();
+                } else if (this.type === 'aster') {
+                    ctx.fillStyle = petalColor.aster;
+                    for (let i=0; i<20; i++) { ctx.rotate((Math.PI*2)/20); ctx.beginPath(); ctx.ellipse(10,0,9,2,0,0,Math.PI*2); ctx.fill(); }
+                    ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fill();
                 }
                 ctx.restore();
             }
@@ -236,12 +283,11 @@
     function advanceTimeOfDay() {
         cycle++;
         if (cycle === 1) {
-            canvas.style.backgroundColor = '#fff3e0'; // Golden Hour Sky
-            targetGroundColor = { r: 232, g: 213, b: 181 }; // Warm wheat grass
+            targetPalette = { ...palettes.goldenHour };
             instructions.innerText = "The afternoon sun brings out new blooms.";
+            // Removed canvas.style.backgroundColor change as it's now handled by drawScene()
         } else if (cycle === 2) {
-            canvas.style.backgroundColor = '#2c3e50'; // Dusk Sky
-            targetGroundColor = { r: 26, g: 37, b: 47 }; // Dark night silhouettes
+            targetPalette = { ...palettes.dusk };
             instructions.style.color = '#fcfbf9'; 
             instructions.innerText = "The Luna Moth takes the night shift.";
         } else if (cycle > 2) {
@@ -252,8 +298,8 @@
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // 1. Draw Background Prairie
-        drawPrairie();
+        // 1. Draw the new layered background
+        drawScene();
 
         let bloomedCount = 0;
 
@@ -262,7 +308,7 @@
             fireflies.forEach(f => { f.update(); f.draw(); });
         }
 
-        // 3. Draw Garden
+        // 3. Draw Garden (Now correctly placed below horizon)
         garden.forEach(flower => {
             if (flower.state === 'bud' && cycle <= 2) {
                 const dist = Math.hypot(pollinator.x - flower.x, pollinator.y - flower.y);
