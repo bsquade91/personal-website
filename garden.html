@@ -6,33 +6,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pollinator Garden | Creative Lab</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .game-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 85vh;
-            padding: 20px;
-        }
-        canvas {
-            background-color: #fcfbf9;
-            transition: background-color 4s ease-in-out; 
-            border-radius: 32px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.04);
-            border: 2px solid rgba(0,0,0,0.05);
-            cursor: none; 
-            touch-action: none; 
-        }
-        .instructions {
-            margin-top: 1rem;
-            color: #4a4a4a;
-            font-size: 0.9rem;
-            font-weight: bold;
-            text-align: center;
-            transition: color 4s ease;
-        }
-    </style>
+<style>
+    /* Prevent padding from causing horizontal overflow */
+    * {
+        box-sizing: border-box;
+    }
+    body {
+        margin: 0;
+        overflow-x: hidden; /* Stops horizontal scrolling entirely */
+    }
+    .game-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 85vh;
+        width: 100%;
+        padding: 20px;
+    }
+    canvas {
+        /* This scales the canvas visually while keeping the 600x400 aspect ratio */
+        width: 100%;
+        max-width: 600px; 
+        height: auto; 
+        
+        background-color: #fcfbf9;
+        transition: background-color 4s ease-in-out; 
+        border-radius: 32px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+        border: 2px solid rgba(0,0,0,0.05);
+        cursor: none; 
+        touch-action: none; 
+    }
+    .instructions {
+        margin-top: 1rem;
+        color: #4a4a4a;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-align: center;
+        transition: color 4s ease;
+    }
+</style>
 </head>
 <body>
     <main class="game-wrapper">
@@ -363,23 +377,21 @@
 
     function updateMouse(e) {
         const rect = canvas.getBoundingClientRect();
-        mouse.x = (e.clientX || e.touches[0].clientX) - rect.left;
-        mouse.y = (e.clientY || e.touches[0].clientY) - rect.top;
+        
+        // Calculate the scale between the visual size and the internal size
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+        
+        // Apply the scale to get accurate coordinates
+        mouse.x = (clientX - rect.left) * scaleX;
+        mouse.y = (clientY - rect.top) * scaleY;
     }
     
     canvas.addEventListener('mousemove', updateMouse);
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateMouse(e); });
-
-    window.addEventListener('resize', () => {
-        const wrapper = document.querySelector('.game-wrapper');
-        canvas.width = Math.min(wrapper.clientWidth - 40, 600); 
-        horizonY = canvas.height * 0.45;
-        
-        grassBlades.forEach(blade => {
-            blade.x = Math.random() * canvas.width;
-            blade.y = horizonY + Math.random() * (canvas.height - horizonY);
-        });
-    });
 
     function advanceTimeOfDay() {
         cycle++;
@@ -464,7 +476,6 @@
         requestAnimationFrame(animate);
     }
 
-    window.dispatchEvent(new Event('resize'));
     animate();
 </script>
 </body>
