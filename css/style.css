@@ -1,9 +1,10 @@
 :root {
-    --bg-color: #fcfbf9; /* A warm, cozy off-white */
+    --bg-color: #fcfbf9; 
     --box-bg: #ffffff;
-    --text-main: #4a4a4a; /* Softer than stark black */
-    --accent-hero: #3a3f3a; /* Earthy charcoal for the main box */
-    --radius: 32px; /* Extra rounded, "cuter" corners */
+    --text-main: #4a4a4a; 
+    --accent-hero: #3a3f3a; 
+    --radius: 32px; 
+    --accent-mastercard: #eb6116; /* Adds the Mastercard orange/red */
 }
 
 body { 
