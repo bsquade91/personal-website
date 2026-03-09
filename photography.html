@@ -8,22 +8,64 @@
 </head>
 <body>
 
-    <main class="bento-container" style="display: block;"> <section class="box nav-box">
-            <a href="index.html" class="link">← Back to Home</a>
-            <h1>Photography</h1>
-            <p>A collection of my favorite moments.</p>
+    <main class="bento-container" style="display: block;"> 
+        
+        <section class="box nav-box header-with-avatar">
+            <div class="avatar-container">
+                <img src="images/profile-pic.jpg" alt="Ben Quade" class="avatar">
+            </div>
+            <div class="header-text">
+                <a href="index.html" class="link">← Back to Home</a>
+                <h1>Photography</h1>
+                <p>A collection of my favorite moments.</p>
+            </div>
         </section>
 
-        <div class="masonry-gallery">
-            <img src="images/photo1.jpg" alt="Description of photo" loading="lazy">
-            <img src="images/photo2.jpg" alt="Description of photo" loading="lazy">
-            <img src="images/photo3.jpg" alt="Description of photo" loading="lazy">
-            <img src="images/photo4.jpg" alt="Description of photo" loading="lazy">
-            <img src="images/photo5.jpg" alt="Description of photo" loading="lazy">
-            <img src="images/photo6.jpg" alt="Description of photo" loading="lazy">
-        </div>
-
+        <div class="masonry-gallery" id="dynamic-gallery"></div>
+        
     </main>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Your master list of available photos
+            const allPhotos = [
+                "images/photo1.webp", 
+                "images/photo2.webp", 
+                "images/photo3.webp",
+                "images/photo4.webp", 
+                "images/photo5.webp", 
+                "images/photo6.webp",
+                "images/photo7.webp", 
+                "images/photo8.webp", 
+                "images/photo9.webp",
+                "images/photo10.webp", 
+                "images/photo11.webp", 
+                "images/photo12.webp",
+                "images/photo13.webp", 
+                "images/photo14.webp",
+                // Just add a comma and "images/photo7.jpg", etc. to add more to the pool!
+            ];
+
+            // 2. Shuffle the array mathematically
+            for (let i = allPhotos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allPhotos[i], allPhotos[j]] = [allPhotos[j], allPhotos[i]];
+            }
+
+            // 3. Grab exactly the first 5 photos from the newly shuffled list
+            const selectedPhotos = allPhotos.slice(0, 5);
+
+            // 4. Inject them into the HTML gallery
+            const gallery = document.getElementById('dynamic-gallery');
+
+            selectedPhotos.forEach(photoSrc => {
+                const img = document.createElement('img');
+                img.src = photoSrc;
+                img.alt = "Photography Portfolio Image";
+                img.loading = "lazy"; // Keeps your page load times fast
+                gallery.appendChild(img);
+            });
+        });
+    </script>
 </body>
 </html>
