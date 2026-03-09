@@ -4,7 +4,7 @@
 
 Welcome to the repository for my personal website! This site is built with a clean, responsive "bento box" UI designed to showcase my professional analytics work, sustainability projects, and creative coding.
 
-You can check out the live site here: [benquade.com](https://www.benquade.com) *(Update with your actual GitHub Pages URL if different!)*
+You can check out the live site here: [benquade.com](https://www.benquade.com)
 
 ## 🍱 What's Inside the Box?
 
