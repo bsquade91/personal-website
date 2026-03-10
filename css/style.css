@@ -22,9 +22,8 @@ body {
 .bento-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 160px); /* Shorter boxes for a compact look */
-    gap: 1rem; /* Tighter spacing between boxes */
-    max-width: 850px; /* Slimmer overall container */
+    gap: 1rem; 
+    max-width: 850px; 
     width: 100%;
 }
 
@@ -32,9 +31,15 @@ body {
     background: var(--box-bg);
     padding: 1.5rem;
     border-radius: var(--radius);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.04); /* Softer, floaty shadow */
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04); 
     border: 1px solid rgba(0,0,0,0.03);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    
+    /* ADD THESE TWO LINES: Forces the box to be at least 160px, but allows infinite stretching */
+    min-height: 160px; 
+    box-sizing: border-box; 
 }
 
 /* Add a subtle "lift" effect when you hover over the boxes */
@@ -48,6 +53,7 @@ h1, h2, h3 { margin-top: 0; margin-bottom: 0.5rem; }
 h1 { font-size: 1.4rem; } /* Smaller hero name */
 h2 { font-size: 1.1rem; }
 p, li, a { font-size: 0.85rem; line-height: 1.4; } /* Smaller, neater body text */
+p { margin-top: 0; margin-bottom: 0.8rem; }
 ul { padding-left: 1.2rem; margin-bottom: 0; }
 
 /* Bento Box Specifics & Cute Colors */
@@ -62,6 +68,11 @@ ul { padding-left: 1.2rem; margin-bottom: 0; }
 }
 
 .about .location { opacity: 0.8; margin-top: auto; }
+
+.box > a.link {
+    margin-top: auto;
+    align-self: flex-start;
+}
 
 .now {
     grid-column: span 2;
