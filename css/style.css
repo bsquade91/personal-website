@@ -236,13 +236,17 @@ ul { padding-left: 1.2rem; margin-bottom: 0; }
     color: #fcfbf9;
 }
 
-/* Mobile responsiveness for the actions */
-@media (max-width: 600px) {
-    .project-actions {
-        flex-direction: column;
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .bento-container {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto; /* Lets boxes size purely to their content on mobile */
     }
-    .iframe-container {
-        height: 400px;
+    
+    /* Using .box catches ALL of them, so you don't have to list every single class name! */
+    .box {
+        grid-column: span 1 !important;
+        grid-row: auto !important; /* Prevents tall boxes from leaving empty gaps */
     }
 }
 
