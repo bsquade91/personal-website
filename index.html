@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is; style-src 'self' 'unsafe-inline';">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Ben Quade | Portfolio</title>
 
+    <script defer src="js/main.js"></script>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="34773a39-59e8-4d6b-ac0f-1a9fb0ccf72a"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -51,41 +52,6 @@
             </div>
         </section>
     </main>
-
-<script>
-    // This forces the script to wait until the HTML is fully loaded
-    document.addEventListener("DOMContentLoaded", () => {
-        const boxes = document.querySelectorAll('.box');
-        console.log(`Found ${boxes.length} boxes ready for transitions.`);
-
-        boxes.forEach(box => {
-            box.addEventListener('click', (e) => {
-                console.log("Box clicked!"); // Tells us the click is registering
-
-                // Prevent links from triggering the expansion
-                if (e.target.tagName.toLowerCase() === 'a') return; 
-
-                // Fallback for Safari/Older browsers
-                if (!document.startViewTransition) {
-                    console.log("View Transitions not supported, snapping open.");
-                    // Close others
-                    boxes.forEach(b => { if (b !== box) b.classList.remove('expanded'); });
-                    box.classList.toggle('expanded');
-                    return;
-                }
-                
-                // Trigger the seamless transition
-                console.log("Starting View Transition...");
-                document.startViewTransition(() => {
-                    boxes.forEach(b => {
-                        if (b !== box) b.classList.remove('expanded');
-                    });
-                    box.classList.toggle('expanded');
-                });
-            });
-        });
-    });
-</script>
     
 </body>
 </html>
