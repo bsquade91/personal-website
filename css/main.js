@@ -5,6 +5,14 @@ document.addEventListener("DOMContentLoaded", () => {
         box.addEventListener('click', (e) => {
             if (e.target.tagName.toLowerCase() === 'a') return; 
 
+            // NEW: If they click the Close Button, let the transition handle shrinking it
+            if (e.target.classList.contains('close-btn')) {
+                // We don't return here, we let the script continue to toggle the class off!
+            } else if (box.classList.contains('expanded')) {
+                // If the box is already open and they click the background, do nothing
+                return; 
+            }
+            
             // Clear the tracking name from all boxes first so the browser doesn't get confused
             boxes.forEach(b => b.style.viewTransitionName = 'none');
             
