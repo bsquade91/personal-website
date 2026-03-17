@@ -14,14 +14,14 @@
 <body>
 
     <main class="bento-container">
-        <section class="box about">
+        <section class="box about" style="view-transition-name: card-about;">
             <h1>Ben Quade</h1>
             <p>Technical Product Manager @ Mastercard 🔴🟠</p>
             <p>Data Scientist & Sustainability Strategist.</p>
             <p class="location">📍 St. Louis, MO</p>
         </section>
 
-        <section class="box now">
+        <section class="box now" style="view-transition-name: card-now;">
             <h2>Now</h2>
             <ul>
                 <li>🎓 MS Data Science</li>
@@ -30,20 +30,20 @@
             </ul>
         </section>
 
-        <section class="box professional">
+        <section class="box professional" style="view-transition-name: card-prof;">
             <h2>Professional</h2>
             <p>Sustainability consulting & data analytics.</p>
             <br>
             <a href="projects.html" class="link">View Work →</a>
         </section>
 
-        <section class="box personal">
+        <section class="box personal" style="view-transition-name: card-personal;">
             <h2>Personal</h2>
             <p>Photography. <a href="photography.html" class="link">📷</a></p>
             <p>Creative projects and experimental code.</p>
         </section>
 
-        <section class="box contact">
+        <section class="box contact" style="view-transition-name: card-contact;">
             <h2>Connect</h2>
             <div class="socials">
                 <a href="https://www.linkedin.com/in/benjaminquade" rel="noopener">LinkedIn</a>
@@ -52,29 +52,40 @@
         </section>
     </main>
 
-    <script>
-        document.querySelectorAll('.box').forEach(box => {
+<script>
+    // This forces the script to wait until the HTML is fully loaded
+    document.addEventListener("DOMContentLoaded", () => {
+        const boxes = document.querySelectorAll('.box');
+        console.log(`Found ${boxes.length} boxes ready for transitions.`);
+
+        boxes.forEach(box => {
             box.addEventListener('click', (e) => {
-                // Prevent links inside the box from triggering the expansion if clicked directly
+                console.log("Box clicked!"); // Tells us the click is registering
+
+                // Prevent links from triggering the expansion
                 if (e.target.tagName.toLowerCase() === 'a') return; 
 
-                // Check if browser supports the API
+                // Fallback for Safari/Older browsers
                 if (!document.startViewTransition) {
+                    console.log("View Transitions not supported, snapping open.");
+                    // Close others
+                    boxes.forEach(b => { if (b !== box) b.classList.remove('expanded'); });
                     box.classList.toggle('expanded');
                     return;
                 }
                 
                 // Trigger the seamless transition
+                console.log("Starting View Transition...");
                 document.startViewTransition(() => {
-                    // We remove 'expanded' from all other boxes first to ensure only one is open
-                    document.querySelectorAll('.box').forEach(b => {
+                    boxes.forEach(b => {
                         if (b !== box) b.classList.remove('expanded');
                     });
                     box.classList.toggle('expanded');
                 });
             });
         });
-    </script>
+    });
+</script>
     
 </body>
 </html>
