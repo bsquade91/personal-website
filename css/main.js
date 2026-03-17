@@ -1,4 +1,3 @@
- <script>
         document.querySelectorAll('.box').forEach(box => {
             box.addEventListener('click', (e) => {
                 // Prevent links inside the box from triggering the expansion if clicked directly
@@ -20,4 +19,3 @@
                 });
             });
         });
-    </script>
