@@ -152,7 +152,7 @@
                         </div>
                         
                         <h3 style="margin-top: 2rem;">Photography</h3>
-                        <div class="masonry-gallery">
+                        <div class="masonry-gallery" id="dynamic-gallery">
                             
                         </div>
                     </div>
@@ -195,6 +195,62 @@
         </section>
 
     </main>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Your master list of available photos
+            const allPhotos = [
+                "images/photo1.webp", 
+                "images/photo2.webp", 
+                "images/photo3.webp",
+                "images/photo4.webp", 
+                "images/photo5.webp", 
+                "images/photo6.webp",
+                "images/photo7.webp", 
+                "images/photo8.webp", 
+                "images/photo9.webp",
+                "images/photo10.webp", 
+                "images/photo11.webp", 
+                "images/photo12.webp",
+                "images/photo13.webp", 
+                "images/photo14.webp",
+                "images/photo15.webp", 
+                "images/photo16.webp",
+                "images/photo17.webp", 
+                "images/photo18.webp", 
+                "images/photo19.webp",
+                "images/photo20.webp", 
+                "images/photo21.webp", 
+                "images/photo22.webp",
+                "images/photo23.webp", 
+                "images/photo24.webp", 
+                "images/photo25.webp",
+                "images/photo26.webp", 
+                "images/photo27.webp"
+                // Just add a comma and "images/photo7.jpg", etc. to add more to the pool!
+            ];
+
+            // 2. Shuffle the array mathematically
+            for (let i = allPhotos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allPhotos[i], allPhotos[j]] = [allPhotos[j], allPhotos[i]];
+            }
+
+            // 3. Grab exactly the first 9 photos from the newly shuffled list
+            const selectedPhotos = allPhotos.slice(0, 9);
+
+            // 4. Inject them into the HTML gallery
+            const gallery = document.getElementById('dynamic-gallery');
+
+            selectedPhotos.forEach(photoSrc => {
+                const img = document.createElement('img');
+                img.src = photoSrc;
+                img.alt = "Photography Portfolio Image";
+                img.loading = "lazy"; // Keeps your page load times fast
+                gallery.appendChild(img);
+            });
+        });
+    </script>
     
 </body>
 </html>
