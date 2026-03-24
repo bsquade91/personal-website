@@ -49,31 +49,12 @@ body {
     flex-direction: column;
     min-height: 160px; 
     box-sizing: border-box; 
-    cursor: pointer; 
 }
 
 .box:hover {
     transform: translateY(-4px);
     background: var(--glass-bg-hover);
     box-shadow: 0 12px 40px rgba(42, 64, 50, 0.12);
-}
-
-/* --- THE EXPANDED APP STATE (SOLARPUNK) --- */
-.box.expanded {
-    position: fixed;
-    inset: 4%; 
-    z-index: 100;
-    width: 92%;
-    height: 92vh;
-    margin: auto;
-    cursor: default;
-    background: rgba(255, 255, 255, 0.85); /* Thicker, brighter glass when open */
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 2px solid rgba(255, 255, 255, 1);
-    box-shadow: 0 30px 60px rgba(26, 41, 32, 0.2);
-    overflow-y: auto;
-    transform: none; 
 }
 
 /* Typography Scaling */
@@ -150,20 +131,6 @@ ul { padding-left: 1.2rem; margin-bottom: 0; color: var(--text-muted); }
     }
 }
 
-/* ---------------------------------------------------
-   VIEW TRANSITIONS (The 0.6s Cubic Bezier Magic)
---------------------------------------------------- */
-::view-transition-group(*) {
-    animation-duration: 800ms;
-    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-}
-
-::view-transition-old(*),
-::view-transition-new(*) {
-    animation-duration: 800ms;
-    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
 /* --- PACE Feasibility Map Styling --- */
 .map-box {
     grid-column: 1 / -1; 
@@ -238,6 +205,25 @@ ul { padding-left: 1.2rem; margin-bottom: 0; color: var(--text-muted); }
     color: #ffffff;
 }
 
+.no-underline {
+    text-decoration: none;
+}
+
+.social-link {
+    font-size: 1.2rem;
+}
+
+.mini-stats-styling {
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-top: auto;
+    color: #2e7d32;
+}
+
+.block-display {
+    display: block;
+}
+
 /* --- Photography Masonry Layout --- */
 .masonry-gallery {
     column-count: 3; 
@@ -266,104 +252,4 @@ ul { padding-left: 1.2rem; margin-bottom: 0; color: var(--text-muted); }
     .masonry-gallery {
         column-count: 1; 
     }
-}
-
-/* --- THE TWO-FACED LOGIC --- */
-.expanded-content {
-    display: none; 
-}
-
-/* Hide the small text when the card is open */
-.box.expanded .bento-front {
-    display: none; 
-}
-
-/* Show the dashboard when the card is open */
-.box.expanded .expanded-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    /* Delays the text fading in until the card has physically expanded */
-    animation: fadeIn 0.4s ease forwards;
-    animation-delay: 0.3s; 
-}
-
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
-
-/* --- SOLARPUNK DASHBOARD STYLING --- */
-.close-btn {
-    align-self: flex-start;
-    background: rgba(42, 64, 50, 0.1);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    color: var(--text-main);
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 2rem;
-    transition: background 0.2s;
-}
-.close-btn:hover { background: rgba(42, 64, 50, 0.2); }
-
-.dashboard-header h2 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-.dashboard-header p { font-size: 1.1rem; max-width: 600px; }
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 2rem;
-}
-
-/* Internal Project Cards */
-.dash-card {
-    display: flex;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    padding: 1.5rem;
-    gap: 2rem;
-}
-
-.dash-text { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.dash-text h3 { margin-bottom: 0.5rem; color: #1a2920; }
-
-.metrics { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-.metric-pill {
-    background: #e8f5e9;
-    color: #2e7d32;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    border: 1px solid rgba(46, 125, 50, 0.2);
-}
-
-/* Visual Placeholders for TPM Work */
-.visual-placeholder {
-    flex: 1;
-    border-radius: 16px;
-    min-height: 200px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Cloud Migration: Airy, overlapping soft white and pale green circles mimicking clouds/nodes */
-.cloud-vis { 
-    background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.8) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.9) 0%, transparent 40%),
-                linear-gradient(135deg, #e8f5e9, #c8e6c9); 
-}
-
-/* PCI Compliance: Structured, secure, interlocking geometric gradient */
-.security-vis { 
-    background: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 10px, transparent 10px, transparent 20px),
-                linear-gradient(135deg, #a5d6a7, #81c784); 
-    border: 1px solid rgba(46, 125, 50, 0.2);
 }
