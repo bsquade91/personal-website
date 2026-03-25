@@ -91,7 +91,18 @@ ul { padding-left: 1.2rem; margin-bottom: 0; color: var(--text-muted); }
     background: rgba(225, 213, 233, 0.3); /* Soft lavender morning tint */
 }
 
-.contact { grid-column: span 2; }
+.contact {
+    grid-column: span 2;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.contact .socials {
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
 
 /* Links & Tags */
 .socials { display: flex; gap: 1rem; margin-top: 0.5rem; }
@@ -114,7 +125,7 @@ ul { padding-left: 1.2rem; margin-bottom: 0; color: var(--text-muted); }
     letter-spacing: 0.05rem;
     padding: 5px 10px;
     background: rgba(42, 64, 50, 0.06); 
-    color: var(--text-main);
+    color: var(--accent-hero);
     border-radius: 12px;
     font-weight: 700;
 }
@@ -252,4 +263,14 @@ ul { padding-left: 1.2rem; margin-bottom: 0; color: var(--text-muted); }
     .masonry-gallery {
         column-count: 1; 
     }
+}
+
+.projects-grid > .box {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.projects-grid > .box > .tag {
+    margin-top: auto;
 }
